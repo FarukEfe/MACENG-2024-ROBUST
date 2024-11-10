@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, session,flash
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
-import re
+import re, base64, io
+from PIL import Image
 #import encryption
 
 
@@ -13,7 +14,7 @@ app.secret_key = '1a2b3c4d5e6d7g8h9i10'
 # Enter your database connection details below
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = "Prtpwd22342@" #Replace ******* with  your database password.
+app.config['MYSQL_PASSWORD'] = "******" #Replace ******* with  your database password.
 app.config['MYSQL_DB'] = 'loginapp'
 
 
@@ -30,8 +31,21 @@ def login():
         # Create variables for easy access
         username = request.form['username']
         password = request.form['password']
+        log_img = request.form['image']
         # Check if account exists using MySQL
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        # Fetch image for username and compare with 
+        cursor.execute('SELECT image FROM accounts WHERE username = %s')
+        image = cursor.fetchone()
+        if image:
+            
+            image = image[0]
+            # Load the image from binary data using PIL
+            image = Image.open(io.BytesIO(image))
+            
+        else:
+            return {{ "access": "denied", "message": "User face image doesn't match"}}
+
         cursor.execute('SELECT * FROM accounts WHERE username = %s AND password = %s', (username, password))
         # Fetch one record and return result
         account = cursor.fetchone()
@@ -59,6 +73,10 @@ def register():
         username = request.form['username']
         password = request.form['password']
         email = request.form['email']
+        image = request.form['image']
+        print(image)
+        #image = image.split(',')[1]
+        #image = base64.b64decode(image)
                 # Check if account exists using MySQL
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         # cursor.execute('SELECT * FROM accounts WHERE username = %s', (username))
@@ -75,7 +93,7 @@ def register():
             flash("Incorrect username/password!", "danger")
         else:
         # Account doesnt exists and the form data is valid, now insert new account into accounts table
-            cursor.execute('INSERT INTO accounts VALUES (NULL, %s, %s, %s)', (username,email, password))
+            cursor.execute('INSERT INTO accounts VALUES (NULL, %s, %s, %s, %s)', (username,email, password, image))
             mysql.connection.commit()
             flash("You have successfully registered!", "success")
             return redirect(url_for('login'))

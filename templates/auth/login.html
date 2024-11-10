@@ -23,22 +23,43 @@
 
             </video>
         </div>
+        <canvas id="img-canvas"></canvas>
+        <input type="hidden" name="image" id="img-data">
         <input type="submit" value="Login">
     </form>
     <script>
         let video = document.querySelector("#videoElement");
+            let canvas = document.querySelector("#img-canvas");
+            let input = document.querySelector("submit");
+            let imageDataInput = document.getElementById("img-data")
 
-        if (navigator.mediaDevices.getUserMedia) {
-            navigator.mediaDevices.getUserMedia({ video: true })
-                .then(function (stream) {
-                    video.srcObject = stream;
-                })
-                .catch (function (error) {
-                    console.log("Something went wrong!");
-                })
-        } else {
-            console.log("getUserMedia not supported!")
-        }
+            if (navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(function (stream) {
+                        video.srcObject = stream;
+                    })
+                    .catch (function (error) {
+                        console.log("Something went wrong!");
+                    })
+            } else {
+                console.log("getUserMedia not supported!")
+            }
+
+            input.addEventListener('click', () => {
+                // Set the canvas size to match the video size
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+
+                // Draw the current frame from the video onto the canvas
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // Extract the image data from the canvas
+                const imageDataUrl = canvas.toDataURL('image/png');
+
+                // Display the captured image in an <img> element
+                imageDataInput.value = imageDataUrl;
+            });
     </script>
     <style>
         #video-container {
