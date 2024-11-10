@@ -23,7 +23,39 @@
         </label>
         <input type="email" name="email" placeholder="Email" id="email" required>
         <div class="msg">{{ msg }}</div>
+        <div id="video-container">
+            <video autoplay="true" id="videoElement">
+
+            </video>
+        </div>
         <input type="submit" value="Register">
+        <script>
+            let video = document.querySelector("#videoElement");
+    
+            if (navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: true })
+                    .then(function (stream) {
+                        video.srcObject = stream;
+                    })
+                    .catch (function (error) {
+                        console.log("Something went wrong!");
+                    })
+            } else {
+                console.log("getUserMedia not supported!")
+            }
+        </script>
+        <style>
+            #video-container {
+                width: 350px;
+                height: 200px;
+                background-color: #666;
+            }
+    
+            #videoElement {
+                width: 100%;
+                height: 100%;
+            }
+        </style>
     </form>
 </div>
 {% endblock %}
