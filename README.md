@@ -59,3 +59,9 @@ flask run
 ```
 
 Finally, you can get the localhost link from the command line output and check out the project!
+
+**Here's a demo of the project:**
+
+https://github.com/user-attachments/assets/0509ab1a-5be9-4dff-b6a5-615108954235
+
+
