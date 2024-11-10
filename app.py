@@ -39,12 +39,14 @@ def login():
         # Check if account exists using MySQL
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         # Encryption
+        '''
         cursor.execute('SELECT id FROM accounts WHERE username LIKE %s', [username])
         id = cursor.fetchone()
         cursor.execute('SELECT key FROM keys WHERE id = %s', [id])
         key = cursor.fetchone()
         cipher = Fernet(key)
         encrypted_password = cipher.encrypt(password.encode())
+        '''
         # Fetch image for username and compare with 
         cursor.execute('SELECT image FROM accounts WHERE username LIKE %s', [username])
         image = cursor.fetchone()
@@ -57,8 +59,8 @@ def login():
         else:
             return {{ "access": "denied", "message": "User face image doesn't match"}}
         '''
-        cursor.execute('SELECT * FROM accounts WHERE username = %s AND password = %s', (username, encrypted_password))
-        # cursor.execute('SELECT * FROM accounts WHERE username = %s AND password = %s', (username, password))
+        # cursor.execute('SELECT * FROM accounts WHERE username = %s AND password = %s', (username, encrypted_password))
+        cursor.execute('SELECT * FROM accounts WHERE username = %s AND password = %s', (username, password))
         # Fetch one record and return result
         account = cursor.fetchone()
                 # If account exists in accounts table in out database
@@ -109,21 +111,23 @@ def register():
             flash("Incorrect username/password!", "danger")
         else:
             # Before:
-            '''
-            cursor.execute('INSERT INTO accounts VALUES (NULL, %s, %s, %s, %s)', (username,email, password, image))
-            mysql.connection.commit()
-            flash("You have successfully registered!", "success")
-            return redirect(url_for('login')
-            '''
-            # Account doesnt exists and the form data is valid, now insert new account into accounts table
-            cursor.execute('INSERT INTO accounts VALUES (NULL, %s, %s, %s, %s)', (username, email, encrypted_password, image))
-            mysql.connection.commit()
-            cursor.execute('SELECT id FROM accounts where WHERE username LIKE %s', [username])
-            id = cursor.fetchone()
-            cursor.execute('INSERT INTO keys VALUES (%d, %s)', (id, key))
+            cursor.execute('INSERT INTO accounts VALUES (NULL, %s, %s, %s, %s)', (username, email, password, image))
             mysql.connection.commit()
             flash("You have successfully registered!", "success")
             return redirect(url_for('login'))
+            
+            # Account doesnt exists and the form data is valid, now insert new account into accounts table
+            '''
+            cursor.execute('INSERT INTO accounts VALUES (NULL, %s, %s, %s, %s)', (username, email, encrypted_password, image))
+            mysql.connection.commit()
+            cursor.execute( "SELECT id FROM accounts WHERE username LIKE %s", [username])
+            id = cursor.fetchone()
+            print(type(id['id']))
+            cursor.execute('INSERT INTO keys VALUES (%d, %s)', (id['id'], key))
+            mysql.connection.commit()
+            flash("You have successfully registered!", "success")
+            return redirect(url_for('login'))
+            '''
 
     elif request.method == 'POST':
         # Form is empty... (no POST data)
