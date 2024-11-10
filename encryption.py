@@ -2,7 +2,6 @@ from cryptography.fernet import Fernet
 
 # Generate a key (store this securely)
 key = Fernet.generate_key()
-
 # Initialize a cipher suite
 cipher = Fernet(key)
 

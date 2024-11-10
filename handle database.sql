@@ -15,5 +15,10 @@ CREATE TABLE accounts (
   image BLOB
 ); 
 
+CREATE TABLE keys (
+  id INT PRIMARY KEY,
+  `key` VARCHAR(255) NOT NULL
+);
+
 
 
